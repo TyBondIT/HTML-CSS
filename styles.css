@@ -1,0 +1,57 @@
+body {
+  
+  text-align: center;
+  align-content: center;
+}
+
+h1{
+  background-color: black;
+  color: white;
+  font-family: Trebuchet MS;
+
+}
+
+h2 {
+  text-align: left;
+  margin-left: 300px;
+  margin-right: 300px;
+}
+
+h3 {
+  text-align: left;
+  margin-left: 300px;
+  margin-right: 300px;
+}
+
+h4 {
+  text-align: left;
+  margin-left: 300px;
+  margin-right: 300px;
+}
+
+h5 {
+  text-align: left;
+  margin-left: 300px;
+  margin-right: 300px;
+}
+
+p {
+  text-align: left;
+  margin-left: 300px;
+  margin-right: 300px;
+
+}
+
+li{
+  text-align: left;
+  margin-left: 300px;
+  margin-right: 300px;
+}
+
+img {
+  position:absolute;
+  size: cover;
+  z-index: -1;
+  width: 200px;
+  height: 200px;
+}
