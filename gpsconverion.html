@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>GPS Coordinate Converter</title>
+   <!--Le style n<est pas important, peut le remplacer avec le style de JOBEL. -->
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .coordinate-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 15px;
+    }
+
+    .coordinate-group input, .coordinate-group select {
+      width: 60px;
+      padding: 5px;
+      text-align: center;
+    }
+
+    .coordinate-group input.dd {
+      width: 120px;
+    }
+
+    button {
+      margin: 10px 10px 20px 0;
+      padding: 8px 16px;
+      font-size: 14px;
+    }
+
+    h2 {
+      margin-top: 30px;
+    }
+
+    .output-box {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      background-color: #f4f4f4;
+      font-family: monospace;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <h1>Conversion des données GPS</h1>
+
+  <!--pour choisir le mode de saisi des données-->
+  <label for="modeSelect"><strong>Choisir le mode de saisi</strong></label>
+  <select id="modeSelect" onchange="toggleMode()">
+    <option value="">-- Choisir --</option>
+    <option value="dd">Degrée Décimale</option>
+    <option value="dms">Degrées, Minutes, Seconds</option>
+  </select>
+
+  <!--entré DD-->
+  <div id="ddForm" class="hidden">
+    <h2>Degées Décimale</h2>
+    <div class="coordinate-group">
+      <label>Lattitude (N/S):</label>
+      <input type="number" step="any" id="latDd" class="dd">
+
+      <label>Longitude (W/E):</label>
+      <input type="number" step="any" id="lonDd" class="dd">
+    </div>
+    <button onclick="convertDdToDms()">Convertir en DMS</button>
+  </div>
+
+  <!--entré DMS-->
+  <div id="dmsForm" class="hidden">
+    <h2>Degrées, Minutes, Seconds</h2>
+    <div class="coordinate-group">
+      <label>Lattitude:</label>
+      <input type="number" id="latDeg" placeholder="°">
+      <input type="number" id="latMin" placeholder="'">
+      <input type="number" id="latSec" placeholder='"'>
+      <select id="latDir">
+        <option value="N">N</option>
+        <option value="S">S</option>
+      </select>
+
+
+      <label>Longitude:</label>
+      <input type="number" id="lonDeg" placeholder="°">
+      <input type="number" id="lonMin" placeholder="'">
+      <input type="number" id="lonSec" placeholder='"'>
+      <select id="lonDir">
+        <option value="W">W</option> <!--Garde W en premier, sa vas le garder selectionner par default, moin de confusion-->
+        <option value="E">E</option>
+      </select>
+    </div>
+    <button onclick="convertDmsToDd()">Convertir en DD</button>
+  </div>
+
+  <!-- Output -->
+  <div class="output-box">
+    <strong>Données Convertie:</strong>
+    <div id="conversionResult"></div>
+  </div>
+
+  <script>
+    function toggleMode() { //Alterne entre DD et DMS
+      const mode = document.getElementById('modeSelect').value;
+      document.getElementById('ddForm').classList.toggle('hidden', mode !== 'dd');
+      document.getElementById('dmsForm').classList.toggle('hidden', mode !== 'dms');
+      document.getElementById('conversionResult').textContent = '';
+    }
+
+    function convertDmsToDd() { // La fonction pour convertir de DMS en DD
+      const latDeg = parseFloat(document.getElementById('latDeg').value) || 0;
+      const latMin = parseFloat(document.getElementById('latMin').value) || 0;
+      const latSec = parseFloat(document.getElementById('latSec').value) || 0;
+      const latDir = document.getElementById('latDir').value;
+
+      const lonDeg = parseFloat(document.getElementById('lonDeg').value) || 0;
+      const lonMin = parseFloat(document.getElementById('lonMin').value) || 0;
+      const lonSec = parseFloat(document.getElementById('lonSec').value) || 0;
+      const lonDir = document.getElementById('lonDir').value;
+
+      let latDd = latDeg + latMin / 60 + latSec / 3600;
+      let lonDd = lonDeg + lonMin / 60 + lonSec / 3600;
+
+      if (latDir === 'S') latDd = -latDd;
+      if (lonDir === 'W') lonDd = -lonDd;
+        //les données GPS sont enregistrer ici, enregister en DD
+      document.getElementById('conversionResult').textContent =
+        `Latitude (DD): ${latDd.toFixed(6)}\nLongitude (DD): ${lonDd.toFixed(6)}`;
+    }
+
+    function convertDdToDms() {
+      let latDd = parseFloat(document.getElementById('latDd').value);
+      let lonDd = parseFloat(document.getElementById('lonDd').value);
+
+      if (isNaN(latDd) || isNaN(lonDd)) {
+        document.getElementById('conversionResult').textContent = "Please enter valid decimal degree values.";
+        return;
+      }
+
+      function ddToDms(dd) { //Convertir les donnees en DMS a partir de DD
+        const dir = dd >= 0 ? 1 : -1;
+        dd = Math.abs(dd);
+        const degrees = Math.floor(dd);
+        const minutesFloat = (dd - degrees) * 60;
+        const minutes = Math.floor(minutesFloat);
+        const seconds = ((minutesFloat - minutes) * 60).toFixed(2);
+        return [degrees, minutes, seconds, dir];
+      }
+
+      const [latDeg, latMin, latSec, latSign] = ddToDms(latDd);
+      const [lonDeg, lonMin, lonSec, lonSign] = ddToDms(lonDd);
+
+      const latDir = latSign === 1 ? 'N' : 'S';
+      const lonDir = lonSign === 1 ? 'E' : 'W';
+
+      //les données GPS sont enregistrer ici, enregistré en DMS
+      document.getElementById('conversionResult').textContent =
+        `Latitude (DMS): ${latDeg}° ${latMin}' ${latSec}" ${latDir}\nLongitude (DMS): ${lonDeg}° ${lonMin}' ${lonSec}" ${lonDir}`;
+    }
+  </script>
+</body>
+</html>
+<!--Il manque la logique des zones OPANO et des check de zones de peche mais je nais pas la documentation pour rendre sa possible.
+
+-Ty
+-->
